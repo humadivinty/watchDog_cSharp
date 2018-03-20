@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define TEST_DEAMON_PROCESS
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
 using Demo_TcpClient_csharp;
+using System.Diagnostics;
 
 namespace Demo_tcpip_csharp
 {
@@ -38,8 +41,8 @@ namespace Demo_tcpip_csharp
             g_iDogFood = g_iMaxFood;
 
             //看门狗线程
-            Thread watchDogThread = new Thread(FuncWatchDog);
-            watchDogThread.Start();
+            //Thread watchDogThread = new Thread(FuncWatchDog);
+            //watchDogThread.Start();
 
             //------------------tcp test----------------
             //////创建线程监听
@@ -58,10 +61,45 @@ namespace Demo_tcpip_csharp
             //dogClient.SendFeedDogMessage(Encoding.ASCII.GetBytes("client Say Hello"));
 
             //------------udp Server test----------------
-            Thread listenThread = new Thread(ThreadStartFunc_UdpServer);
-            listenThread.Start();
+            //Thread listenThread = new Thread(ThreadStartFunc_UdpServer);
+            //listenThread.Start();
+            
+#if(TEST_DEAMON_PROCESS)
+            gLoger.WriteLog(string.Format("启动程序,pid={0}", Process.GetCurrentProcess().Id));
+            DaemonControler Deamon = new DaemonControler();
+            if (!Deamon.isDeamonExist())
+            {
+                Deamon.StartDeamon();
+            }
+            gLoger.WriteLog(string.Format("当前进程,pid={0}", Process.GetCurrentProcess().Id));
 
-            Console.WriteLine("main end.");
+            if (DaemonControler.GetCurrentProcessSum() != 2)
+            {
+                gLoger.WriteLog(string.Format("当前进程数大于2，不重复执行函数,pid={0}", Process.GetCurrentProcess().Id));
+                //return;
+            }
+            else
+            {
+                //看门狗线程
+                Thread watchDogThread = new Thread(FuncWatchDog);
+                watchDogThread.Start();
+
+                //------------udp Server test----------------
+                Thread listenThread = new Thread(ThreadStartFunc_UdpServer);
+                listenThread.Start();
+            }
+
+#else
+            //看门狗线程
+            Thread watchDogThread = new Thread(FuncWatchDog);
+            watchDogThread.Start();
+
+             //------------udp Server test----------------
+                Thread listenThread = new Thread(ThreadStartFunc_UdpServer);
+                listenThread.Start();
+#endif
+
+            Console.WriteLine("main end.pid{0}", Process.GetCurrentProcess().Id);
         }
 
 

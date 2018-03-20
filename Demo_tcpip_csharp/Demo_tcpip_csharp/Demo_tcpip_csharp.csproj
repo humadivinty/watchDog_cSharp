@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigerHelper.cs" />
+    <Compile Include="DaemonControler.cs" />
     <Compile Include="gLoger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
